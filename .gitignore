@@ -1,0 +1,27 @@
+# Chrome Extension specific files
+*.pem
+*.crx
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+debug.log
+
+# Dependencies
+node_modules/
+dist/
+build/
+*.pem
+*.crx
+.DS_Store
+.vscode/
+.idea/
+*.log
+debug.log
+node_modules/
+dist/
+build/

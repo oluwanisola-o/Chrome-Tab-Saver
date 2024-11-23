@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tab Organizer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Tab Organizer</h1>
+    <div id="categories">
+      <h2>Categories</h2>
+      <input type="text" id="newCategory" placeholder="New category">
+      <button id="addCategory">Add Category</button>
+      <ul id="categoryList"></ul>
+    </div>
+    <div id="tabs">
+      <h2>Open Tabs</h2>
+      <select id="categoryFilter">
+        <option value="all">All Categories</option>
+      </select>
+      <ul id="tabList"></ul>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
+
