@@ -3,24 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tab Organizer</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Advanced Tab Organizer</title>
+  <link href="tailwind.css" rel="stylesheet">
 </head>
-<body>
-  <div id="app">
-    <h1>Tab Organizer</h1>
-    <div id="categories">
-      <h2>Categories</h2>
-      <input type="text" id="newCategory" placeholder="New category">
-      <button id="addCategory">Add Category</button>
-      <ul id="categoryList"></ul>
+<body class="bg-gray-100 p-4">
+  <div id="app" class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-2xl font-bold mb-4">Advanced Tab Organizer</h1>
+    <div id="categories" class="mb-6">
+      <h2 class="text-lg font-semibold mb-2">Categories</h2>
+      <div class="flex mb-2">
+        <input type="text" id="newCategory" placeholder="New category" class="flex-grow mr-2 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button id="addCategory" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Add</button>
+      </div>
+      <ul id="categoryList" class="space-y-1"></ul>
     </div>
     <div id="tabs">
-      <h2>Open Tabs</h2>
-      <select id="categoryFilter">
-        <option value="all">All Categories</option>
-      </select>
-      <ul id="tabList"></ul>
+      <h2 class="text-lg font-semibold mb-2">Tabs</h2>
+      <div class="flex mb-2">
+        <select id="categoryFilter" class="flex-grow mr-2 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="all">All Categories</option>
+        </select>
+        <button id="saveCurrentTab" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Save Current Tab</button>
+      </div>
+      <ul id="tabList" class="space-y-2"></ul>
     </div>
   </div>
   <script src="popup.js"></script>
