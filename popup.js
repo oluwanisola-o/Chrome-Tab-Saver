@@ -4,12 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const categoryList = document.getElementById('categoryList');
   const categoryFilter = document.getElementById('categoryFilter');
   const tabList = document.getElementById('tabList');
+  const saveCurrentTabButton = document.getElementById('saveCurrentTab');
 
   let categories = [];
   let tabs = [];
 
   // Load categories and tabs
-  chrome.storage.sync.get(['categories', 'tabs'], (result) => {
+  chrome.storage.local.get(['categories', 'tabs'], (result) => {
     categories = result.categories || [];
     tabs = result.tabs || [];
     updateCategoryList();
@@ -21,11 +22,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const newCategory = newCategoryInput.value.trim();
     if (newCategory && !categories.includes(newCategory)) {
       categories.push(newCategory);
-      chrome.storage.sync.set({ categories }, () => {
+      chrome.storage.local.set({ categories }, () => {
         updateCategoryList();
         newCategoryInput.value = '';
       });
     }
+  });
+
+  // Save current tab
+  saveCurrentTabButton.addEventListener('click', () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (currentTabs) => {
+      const currentTab = currentTabs[0];
+      const newTab = {
+        id: Date.now(), // Use timestamp as ID for saved tabs
+        title: currentTab.title,
+        url: currentTab.url,
+        openedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        category: ''
+      };
+      tabs.push(newTab);
+      chrome.storage.local.set({ tabs }, updateTabList);
+    });
   });
 
   // Update category list
@@ -35,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     categories.forEach((category) => {
       const li = document.createElement('li');
       li.textContent = category;
+      li.className = 'px-2 py-1 bg-gray-200 rounded-md text-sm';
       categoryList.appendChild(li);
 
       const option = document.createElement('option');
@@ -53,25 +72,32 @@ document.addEventListener('DOMContentLoaded', () => {
       ? tabs
       : tabs.filter(tab => tab.category === selectedCategory);
 
-    filteredTabs.sort((a, b) => b.openedAt - a.openedAt);
+    filteredTabs.sort((a, b) => new Date(b.openedAt) - new Date(a.openedAt));
 
     filteredTabs.forEach((tab) => {
       const li = document.createElement('li');
+      li.className = 'flex items-center justify-between bg-white p-2 rounded-md shadow-sm';
       li.innerHTML = `
-        <span>${tab.title}</span>
-        <select class="categorySelect">
+        <span class="flex-grow truncate mr-2">${tab.title}</span>
+        <select class="categorySelect mr-2 px-2 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">No Category</option>
           ${categories.map(cat => `<option value="${cat}" ${cat === tab.category ? 'selected' : ''}>${cat}</option>`).join('')}
         </select>
+        <button class="deleteTab bg-red-500 text-white px-2 py-1 rounded-md text-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">Delete</button>
       `;
       
       const select = li.querySelector('.categorySelect');
       select.addEventListener('change', (e) => {
         const updatedCategory = e.target.value;
         tab.category = updatedCategory;
-        chrome.storage.sync.set({ tabs }, () => {
-          updateTabList();
-        });
+        tab.updatedAt = new Date().toISOString();
+        chrome.storage.local.set({ tabs }, updateTabList);
+      });
+
+      const deleteButton = li.querySelector('.deleteTab');
+      deleteButton.addEventListener('click', () => {
+        tabs = tabs.filter(t => t.id !== tab.id);
+        chrome.storage.local.set({ tabs }, updateTabList);
       });
 
       tabList.appendChild(li);
@@ -83,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial load of open tabs
   chrome.tabs.query({}, (openTabs) => {
-    chrome.storage.sync.get(['tabs'], (result) => {
+    chrome.storage.local.get(['tabs'], (result) => {
       let storedTabs = result.tabs || [];
       
       openTabs.forEach(tab => {
@@ -93,16 +119,19 @@ document.addEventListener('DOMContentLoaded', () => {
             id: tab.id,
             title: tab.title,
             url: tab.url,
-            openedAt: Date.now(),
+            openedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             category: ''
           });
         }
       });
       
       // Remove tabs that are no longer open
-      storedTabs = storedTabs.filter(tab => openTabs.some(t => t.id === tab.id));
+      storedTabs = storedTabs.filter(tab => 
+        openTabs.some(t => t.id === tab.id) || typeof tab.id === 'number'
+      );
       
-      chrome.storage.sync.set({ tabs: storedTabs }, updateTabList);
+      chrome.storage.local.set({ tabs: storedTabs }, updateTabList);
     });
   });
 });
